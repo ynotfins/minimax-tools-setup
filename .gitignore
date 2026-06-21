@@ -17,11 +17,15 @@ venv/
 env/
 
 # IDE
-.cursor/
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# Track AI agent rules even though the rest of .cursor/ is local
+!.cursor/
+!.cursor/rules/
+!.cursor/rules/**
 
 # OS
 .DS_Store

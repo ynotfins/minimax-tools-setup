@@ -1,0 +1,71 @@
+---
+description: Rules for the minimax-tools-setup repo (system tooling, read-only by default)
+globs: ["**/*.py", "**/*.ps1", "**/*.toml", "**/*.md", "**/*.conf", "**/*.yml", "**/*.yaml"]
+---
+
+# minimax-tools-setup — Project Rules
+
+This repo is a **system-tools** project. It is NOT a runtime app. Use these rules for
+every AI agent (Cursor, MiniMax, etc.) operating in `D:\minimax-tools-setup`.
+
+## Hard Constraints (read first, every session)
+
+1. **Database is READ-ONLY by default.** `agent_core_read_only = True` in
+   `src/aat/settings.py`. NEVER write to `agent_core` from this repo. The runtime
+   writes happen in `D:\github\advanced-agent-team`, NOT here.
+2. **No secrets in git.** `.env` is gitignored. Never commit `*.pem`, `*.key`,
+   real `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GITHUB_TOKEN`, etc.
+3. **No destructive ops.** No `rm -rf`, no `Remove-Item -Recurse -Force` on
+   non-temp paths, no `git push --force`, no `git reset --hard`. Use the Trash
+   tool or move to a backup folder.
+4. **All env vars live in Windows environment variables.** Do not create a
+   local `.env` in this repo unless the user explicitly asks. The
+   `configs/.env.example` is a template only.
+
+## PowerShell Only
+
+- Use PowerShell syntax only. No `cmd.exe`, no `bash` heredocs.
+- For deletes, use the `mcp__matrix__Trash` tool. Do NOT use `Remove-Item`,
+  `del`, `rm`, `rd`, etc., in shells.
+
+## Python Standards
+
+- Run Python with `uv` (project uses `uv.lock`). Example:
+  `uv run aat-doctor` from the repo root.
+- No relative imports. Use absolute imports: `from aat.settings import settings`.
+- Use `datetime` objects for SQLite `DateTime` columns (not strings).
+
+## Git Workflow
+
+- Branch: `main`. Commit messages: `type: short description` (e.g.,
+  `docs: add MCP setup guide`).
+- Push to: `https://github.com/ynotfins/minimax-tools-setup.git`.
+- After every meaningful change, run `scripts/frequent_commit.ps1` or:
+  `git add -A && git commit -m "..." && git push`.
+- OpenClaw-related repos (e.g., `ynotfins/openclaw`) are out of scope. Do
+  not modify them from this repo.
+
+## What This Repo Owns
+
+| Path | Purpose |
+|---|---|
+| `src/aat/` | Read-only CLI: `aat-doctor`, `aat-ping` |
+| `configs/` | Templates: `.env.example`, `pgvector.conf.example` |
+| `docs/` | RUNBOOK, BACKUP, DISASTER_RECOVERY, DB_README, MCP_SETUP |
+| `scripts/` | `pg_dump_backup.ps1`, `env_audit.ps1`, `db_ping_readonly.ps1`, `frequent_commit.ps1` |
+| `references/handoff-docs/` | Cross-project handoff notes |
+| `.cursor/rules/` | AI agent rules (this file) |
+
+## What This Repo Does NOT Own
+
+- The pgvector schema or data (read-only here, owned by the runtime project).
+- OpenClaw configuration or data (locked, do not touch).
+- Supabase credentials (read from env, never persisted).
+
+## MiniMax App Awareness
+
+- This workspace is for **system tooling** between projects. When the user
+  starts a new project (e.g., a new agent team), DO NOT bring in the runtime
+  deps. Start a fresh `uv` project at the new path.
+- MCP servers set up in MiniMax are available globally — see
+  `docs/MCP_SETUP.md`.
